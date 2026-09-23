@@ -1,0 +1,14 @@
+# Datos personales: nunca al repo
+data/
+config.yaml
+reglas_personales.yaml
+.env
+*.xlsx
+*.xls
+*.csv
+!tests/fixtures/*.csv
+
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/

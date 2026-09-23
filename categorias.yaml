@@ -1,0 +1,153 @@
+# Reglas de categorización (orden = prioridad: gana la primera que coincide).
+#
+# Cada categoría:
+#   nombre:   cómo aparece en los reportes
+#   tipo:     ingreso | egreso | interno   (interno = entre tus cuentas, no suma ni resta)
+#   patrones: expresiones regulares (sin distinguir mayúsculas) sobre la descripción
+#   signo:    opcional, "+" solo créditos / "-" solo débitos
+#   cuentas:  opcional, lista de ids de cuenta a los que aplica
+#
+# Tus reglas personales (las que agregás con `gastos categorizar`) van en
+# reglas_personales.yaml y tienen prioridad sobre estas.
+
+categorias:
+  # ---------------------------------------------------------------- internos
+  - nombre: Pago de tarjeta
+    tipo: interno
+    patrones:
+      - 'PAGO\s*(DE\s*)?(TARJ|TC|VISA|AMEX|MASTER)'
+      - 'SU PAGO'            # así figura el pago en el resumen de la Visa
+      - 'DEBITO AUTOMATICO.*VISA'
+
+  - nombre: Transferencia entre cuentas propias
+    tipo: interno
+    patrones:
+      # Poné acá tu nombre como aparece en las transferencias, por ejemplo:
+      # - 'PEREZ JUAN'
+      - 'TRANSF.*(MISMO TITULAR|CTAS? PROPIAS|ENTRE CUENTAS)'
+      - 'Retiro a cuenta bancaria'
+      - 'MERCADO\s*PAGO.*(CARGA|INGRESO DE DINERO)'
+      - 'TRANSF.*MERCADO\s*PAGO'   # Santander -> tu cuenta de Mercado Pago
+
+  - nombre: Compra/venta de moneda extranjera
+    tipo: interno
+    patrones: ['COMPRA\s*(DE\s*)?(U\$S|USD|DOLAR|ME\b)', 'VENTA\s*(DE\s*)?(U\$S|USD|DOLAR|ME\b)']
+
+  - nombre: Inversiones (plazo fijo, FCI)
+    tipo: interno
+    patrones: ['PLAZO FIJO', 'P\.?\s*FIJO', '\bFCI\b', 'SUPERGESTION', 'SUSCRIPCION', 'RESCATE']
+
+  # ---------------------------------------------------------------- ingresos
+  - nombre: Sueldo
+    tipo: ingreso
+    signo: "+"
+    patrones: ['HABERES', 'SUELDO', 'ACRED.*HAB', 'REMUNERACION']
+
+  - nombre: Rendimientos e intereses
+    tipo: ingreso
+    patrones: ['Rendimientos', 'INTERES(ES)?\s*(GANADOS|PLAZO|ACRED)', 'ACREDITACION INTERESES']
+
+  - nombre: Reintegros y promociones
+    tipo: ingreso
+    signo: "+"
+    patrones: ['REINTEGRO', 'BONIFICACION', 'DEVOLUCION PROMO', 'CASHBACK']
+
+  - nombre: Transferencias recibidas
+    tipo: ingreso
+    signo: "+"
+    patrones: ['TRANSF', 'TRANSFERENCIA', '\[bank_transfer\]', '\[account_money\]']
+
+  # ---------------------------------------------------------------- egresos
+  - nombre: Impuestos y retenciones
+    tipo: egreso
+    patrones:
+      - 'LEY\s*25\.?413'        # impuesto al cheque (débitos y créditos)
+      - 'IMP(UESTO)?\.?\s*(DEB|CRED|SELLOS|PAIS|GANANCIAS)'
+      - 'Impuesto débitos y créditos'
+      - 'PERCEPCION|PERCEP\.?\s|RETENCION|IIBB|INGRESOS BRUTOS|\bIVA\b|\bAFIP\b|\bARCA\b'
+      - 'ARBA|AGIP|\bABL\b|RENTAS|PATENTE|INMOBILIARIO'
+
+  - nombre: Comisiones bancarias
+    tipo: egreso
+    signo: "-"
+    patrones: ['COMISION', 'MANTENIMIENTO', 'CARGO\s*(POR\s*)?(SERVICIO|PAQUETE)', 'SEGURO\s*(DE\s*)?VIDA SALDO', 'CUOTA ANUAL|RENOVACION ANUAL']
+
+  - nombre: Intereses de tarjeta
+    tipo: egreso
+    signo: "-"
+    patrones: ['INTERES(ES)?\s*(FINANC|PUNIT|COMPENS)', 'INT\.?\s*FINANC']
+
+  - nombre: Supermercado
+    tipo: egreso
+    patrones: ['\bCOTO\b', 'CARREFOUR', '\bDIA\b', 'SUPERMERCADO', 'JUMBO', 'DISCO', 'VEA\b', 'CHANGOMAS', 'MAKRO', '\bVITAL\b', 'LA ANONIMA', 'DIARCO', 'YAGUAR', 'MAXICONSUMO', 'CARNICERIA', 'VERDULERIA', 'CHINO', 'AUTOSERVICIO', 'ALMACEN']
+
+  - nombre: Delivery y restaurantes
+    tipo: egreso
+    patrones: ['PEDIDOS\s*YA', 'RAPPI', 'MC\s*DONALD', 'BURGER', 'MOSTAZA', 'STARBUCKS', 'CAFE', 'RESTO', 'RESTAURANT', 'PARRILLA', 'PIZZ', 'HELAD', 'GRIDO', 'FREDDO', 'CERVECERIA', 'BAR\b', 'HAVANNA', 'PANADERIA', 'CONFITERIA']
+
+  - nombre: Combustible
+    tipo: egreso
+    patrones: ['\bYPF\b', 'SHELL', 'AXION', 'PUMA ENERGY', '\bGULF\b', 'COMBUSTIBLE', 'ESTACION DE SERVICIO']
+
+  - nombre: Transporte
+    tipo: egreso
+    patrones: ['\bSUBE\b', '\bUBER\b', 'CABIFY', '\bDIDI\b', 'TAXI', 'PEAJE', 'AUSA', 'TELEPASE', 'ESTACIONAMIENTO', 'PARKING', 'TRENES ARG', 'AEROLINEAS', 'FLYBONDI', 'JETSMART', 'DESPEGAR', 'ALMUNDO']
+
+  - nombre: Servicios del hogar
+    tipo: egreso
+    patrones: ['EDENOR', 'EDESUR', 'EDELAP', 'EPEC', '\bEPE\b', 'METROGAS', 'NATURGY', 'CAMUZZI', 'ECOGAS', 'LITORAL GAS', 'AYSA', 'AGUAS', 'EXPENSAS', 'ALQUILER']
+
+  - nombre: Internet y telefonía
+    tipo: egreso
+    patrones: ['^PERSONAL\b', 'TELECOM PERSONAL', 'MOVISTAR', '\bCLARO\b', 'TELECENTRO', 'FIBERTEL', 'TELECOM', '\bFLOW\b', 'IPLAN', 'STARLINK', 'DIRECTV', '\bTUENTI\b']
+
+  - nombre: Suscripciones digitales
+    tipo: egreso
+    patrones: ['NETFLIX', 'SPOTIFY', 'DISNEY', '\bHBO\b', '\bMAX\b', 'YOUTUBE', 'GOOGLE\s*\*', 'APPLE\.COM', 'ICLOUD', 'AMAZON PRIME', 'PRIME VIDEO', 'PARAMOUNT', 'STAR\s*\+', 'CHATGPT|OPENAI', 'ANTHROPIC|CLAUDE', 'MICROSOFT', 'ADOBE', 'DROPBOX', 'STEAM', 'PLAYSTATION', 'XBOX', 'NINTENDO', 'TWITCH', 'PATREON', 'MERCADOLIBRE.*NIVEL|MELI\+|MELI PLUS']
+
+  - nombre: Salud
+    tipo: egreso
+    patrones: ['FARMACIA', 'FARMACITY', 'OSDE', 'SWISS MEDICAL', 'GALENO', 'MEDIFE', 'OMINT', 'SANCOR SALUD', 'PREPAGA', 'OBRA SOCIAL', 'HOSPITAL', 'SANATORIO', 'CLINICA', 'LABORATORIO', 'ODONTO', 'OPTICA']
+
+  - nombre: Compras online
+    tipo: egreso
+    patrones: ['MERCADOLIBRE', 'MERCADO LIBRE', '\bMELI\b', 'AMAZON', 'ALIEXPRESS', 'SHEIN', 'TEMU', 'TIENDANUBE']
+
+  - nombre: Ropa y calzado
+    tipo: egreso
+    patrones: ['ZARA', '\bH&M\b', 'NIKE', 'ADIDAS', 'DEXTER', 'GRIMOLDI', 'FALABELLA', 'OPEN SPORTS', 'SPORTLINE', 'MOOV', 'INDUMENTARIA', 'CALZADO']
+
+  - nombre: Hogar y ferretería
+    tipo: egreso
+    patrones: ['EASY', 'SODIMAC', 'FERRETERIA', 'PINTURERIA', 'BLAISTEN', 'FRAVEGA', 'GARBARINO', 'MUSIMUNDO', 'CETROGAR', 'ON CITY', 'MEGATONE']
+
+  - nombre: Educación
+    tipo: egreso
+    patrones: ['COLEGIO', 'ESCUELA', 'UNIVERSIDAD', 'INSTITUTO', 'CUOTA ESCOLAR', 'MATRICULA', 'UDEMY', 'COURSERA', 'PLATZI', 'LIBRERIA']
+
+  - nombre: Seguros
+    tipo: egreso
+    patrones: ['SEGURO', 'LA CAJA', 'SANCOR SEGUROS', 'FEDERACION PATRONAL', 'MAPFRE', 'ZURICH', 'ALLIANZ', '\bRUS\b', 'LA SEGUNDA', 'RIVADAVIA SEG']
+
+  - nombre: Deporte y bienestar
+    tipo: egreso
+    patrones: ['GIMNASIO', '\bGYM\b', 'MEGATLON', 'SPORTCLUB', 'SMART\s*FIT', 'CLUB', 'PELUQUERIA', 'BARBERIA']
+
+  - nombre: Entretenimiento
+    tipo: egreso
+    patrones: ['CINE', 'CINEMARK', 'HOYTS', 'SHOWCASE', 'TICKETEK', 'TICKETMASTER', 'ALLACCESS', 'PASSLINE', 'TEATRO']
+
+  - nombre: Préstamos (cuotas)
+    tipo: egreso
+    signo: "-"
+    patrones: ['PRESTAMO', 'CUOTA\s*(DE\s*)?PREST']
+
+  - nombre: Retiro de efectivo
+    tipo: egreso
+    signo: "-"
+    patrones: ['EXTRACCION', 'CAJERO', '\bATM\b', 'RETIRO\s*(DE\s*)?EFECTIVO']
+
+  - nombre: Transferencias enviadas
+    tipo: egreso
+    signo: "-"
+    patrones: ['TRANSF', 'TRANSFERENCIA', '\[bank_transfer\]']

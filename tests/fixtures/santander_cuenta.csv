@@ -1,0 +1,15 @@
+Banco Santander Argentina;;;;;;
+Movimientos de Caja de Ahorro en Pesos;;;;;;
+Cuenta: 000-123456/7;;;;;;
+;;;;;;
+Fecha;Sucursal Origen;Descripción;Referencia;Débito;Crédito;Saldo
+01/09/2026;0000;Saldo anterior;;;;150.000,00
+01/09/2026;0072;Acreditación de haberes ACME SA;123;;1.250.000,50;1.400.000,50
+02/09/2026;0000;Pago tarjeta Visa;555;350.000,00;;1.050.000,50
+02/09/2026;0000;Impuesto Ley 25.413 débito;;2.100,00;;1.048.400,50
+03/09/2026;0000;Transf. inmediata a Mercado Pago CVU;777;100.000,00;;948.400,50
+05/09/2026;0000;Débito automático EDENOR;888;45.321,99;;903.078,51
+05/09/2026;0000;Compra con débito COTO SUC 45;;12.500,00;;890.578,51
+05/09/2026;0000;Compra con débito COTO SUC 45;;12.500,00;;878.078,51
+;;;;;;
+Total;;;;522.422,00;1.250.000,50;

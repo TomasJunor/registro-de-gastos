@@ -1,0 +1,80 @@
+# Copiá este archivo a config.yaml y ajustalo. config.yaml NO se sube al repo.
+
+rutas:
+  db: data/gastos.db                        # base SQLite con todos los movimientos
+  categorias: categorias.yaml
+  reglas_personales: reglas_personales.yaml # se crea sola con `gastos categorizar`
+  procesados: data/procesados               # acá se archivan los extractos ya importados
+
+cuentas:
+  # ------------------------------------------------------------ Mercado Pago
+  # 100% automático vía API oficial. Configuración: MP_ACCESS_TOKEN en .env
+  - id: mercadopago
+    nombre: Mercado Pago
+    importador: mercadopago_api
+    token_env: MP_ACCESS_TOKEN
+    moneda: ARS
+    dias_iniciales: 90       # la primera vez trae los últimos 90 días
+    dias_solapamiento: 5     # después vuelve a pedir 5 días para atrás (los duplicados se descartan)
+
+  # ------------------------------------------------------------ Santander: cuenta
+  # Todo archivo (CSV/XLSX/XLS) que quede en `carpeta` se importa y se archiva.
+  # Podés bajarlo a mano desde Online Banking y tirarlo ahí, o configurar
+  # `descarga_web` para que lo baje solo.
+  - id: santander_pesos
+    nombre: Santander Caja de Ahorro $
+    importador: archivo
+    carpeta: data/bandeja/santander_pesos
+    moneda: ARS
+    decimal: ","
+    # Si la detección automática falla, indicá las columnas exactas:
+    # fila_encabezado: 5            # 0 = primera fila
+    # columnas:
+    #   fecha: "Fecha"
+    #   descripcion: ["Descripción", "Referencia"]
+    #   importe: "Importe"          # o bien `debito` y `credito`
+    #
+    # Descarga automática (experimental: armá los pasos con `gastos grabar URL`)
+    # descarga_web:
+    #   headless: false             # la primera vez dejalo en false para completar el token
+    #   timeout: 45
+    #   pasos:
+    #     - ir_a: "https://www.santander.com.ar/banco/online/personas"
+    #     - completar: {selector: "#dni", valor: "${SANTANDER_DNI}"}
+    #       solo_si_visible: "#dni"            # si la sesión sigue abierta, saltea el login
+    #     - completar: {selector: "#clave", valor: "${SANTANDER_CLAVE}"}
+    #       solo_si_visible: "#clave"
+    #     - completar: {selector: "#usuario", valor: "${SANTANDER_USUARIO}"}
+    #       solo_si_visible: "#usuario"
+    #     - click: "button:has-text('Ingresar')"
+    #       solo_si_visible: "button:has-text('Ingresar')"
+    #     - esperar_usuario: "Si te pidió Santander Token / código SMS, completalo en el navegador"
+    #       solo_si_visible: "text=Token"
+    #     - click: "text=Cuentas"
+    #     - click: "text=Movimientos"
+    #     - descargar: "button:has-text('Descargar')"
+
+  # ------------------------------------------------------------ Santander: Visa
+  # "Últimos consumos" o el resumen exportado a Excel. Los consumos vienen en
+  # positivo, por eso invertir_signo: los gastos quedan negativos.
+  # Si el archivo tiene columnas separadas para pesos y dólares se detectan solas
+  # (o indicálas con montos_por_moneda).
+  - id: visa_santander
+    nombre: Visa Santander
+    importador: archivo
+    carpeta: data/bandeja/visa_santander
+    invertir_signo: true
+    # montos_por_moneda:
+    #   ARS: "Importe en $"
+    #   USD: "Importe en U$S"
+    # descarga_web: { ... igual que arriba, navegando a Tarjetas > Visa > Últimos consumos ... }
+
+  # ------------------------------------------------------------ Otras
+  # - id: santander_dolares
+  #   nombre: Santander Caja de Ahorro U$S
+  #   importador: archivo
+  #   carpeta: data/bandeja/santander_dolares
+  #   moneda: USD
+  # - id: efectivo
+  #   importador: archivo       # un CSV propio con fecha;descripcion;importe
+  #   carpeta: data/bandeja/efectivo

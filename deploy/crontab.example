@@ -1,0 +1,4 @@
+# `crontab -e` y pegá esta línea (ajustá la ruta). Corre todos los días a las 7:30.
+# Si alguna cuenta usa descarga_web con headless: false, cron necesita acceso a la
+# pantalla; en ese caso usá headless: true una vez que la sesión quedó recordada.
+30 7 * * * /ruta/a/registro-de-gastos/scripts/sync_diario.sh

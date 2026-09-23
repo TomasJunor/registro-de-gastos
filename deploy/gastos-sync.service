@@ -1,0 +1,8 @@
+# systemd (usuario): copiar a ~/.config/systemd/user/ junto con gastos-sync.timer y
+#   systemctl --user daemon-reload && systemctl --user enable --now gastos-sync.timer
+[Unit]
+Description=Registro de gastos: sincronización diaria
+
+[Service]
+Type=oneshot
+ExecStart=%h/registro-de-gastos/scripts/sync_diario.sh
