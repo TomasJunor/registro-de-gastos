@@ -72,7 +72,13 @@ class MercadoPagoAPI:
             "display_timezone": "GMT-03",
             "report_translation": "en",
             "include_withdrawal_at_end": False,
-            "frequency": {"hour": 0, "type": "daily", "value": 1},
+            # obligatorios para la API aunque no usemos retiros ni programación
+            "execute_after_withdrawal": False,
+            "check_available_balance": True,
+            "compensate_detail": True,
+            # no se usa (no activamos la programación), pero es obligatorio;
+            # la API rechaza "daily" con cualquier value
+            "frequency": {"hour": 0, "type": "monthly", "value": 1},
         }
         existe = self._req("GET", "/v1/account/release_report/config")
         metodo = "PUT" if existe.status_code == 200 else "POST"
